@@ -1,5 +1,6 @@
 package org.tairovich.resources;
 
+import jdk.nashorn.internal.objects.annotations.Getter;
 import org.tairovich.model.Message;
 import org.tairovich.resources.beans.MessageFilterBean;
 import org.tairovich.service.MessageService;
@@ -29,12 +30,10 @@ public class MessageResource {
         return service.getMessages();
     }
 
-
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{id}")
-    public Message getMessage( @PathParam("id") long id){
+    @Path("/{messageId}")
+    public Message getMessage( @PathParam("messageId") long id){
         return service.getMessage(id);
     }
 
@@ -45,15 +44,22 @@ public class MessageResource {
 
 
     @PUT
-    @Path("/{id}")
-    public Message updateMessage(@PathParam("id") long id, Message message){
+    @Path("/{messageId}")
+    public Message updateMessage(@PathParam("messageId") long id, Message message){
         message.setId(id);
         return service.updateMessage(message);
     }
 
     @DELETE
-    @Path("/{id}")
-    public void deleteMessage(@PathParam("id") long id){
+    @Path("/{messageId}")
+    public void deleteMessage(@PathParam("messageId") long id){
         service.removeMessage(id);
     }
+
+
+    @Path("/{messageId}/comments")
+    public CommentResource getCommentResource(){
+        return new CommentResource();
+    }
+
 }
