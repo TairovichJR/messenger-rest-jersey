@@ -19,7 +19,7 @@ public class CommentResource {
     }
 
     @GET
-    @Path("/{commentId}")
+    @Path("{commentId}")
     public Comment getComment(@PathParam("messageId") long messageId, @PathParam("commentId") long commentId){
         return service.getComment(messageId,commentId);
     }

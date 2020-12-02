@@ -1,5 +1,6 @@
 package org.tairovich.resources;
 
+import org.tairovich.model.Link;
 import org.tairovich.model.Message;
 import org.tairovich.resources.beans.MessageFilterBean;
 import org.tairovich.service.MessageService;
@@ -33,8 +34,36 @@ public class MessageResource {
 
     @GET
     @Path("/{messageId}")
-    public Message getMessage( @PathParam("messageId") long id){
-        return service.getMessage(id);
+    public Message getMessage( @PathParam("messageId") long id,@Context UriInfo uriInfo){
+
+        Message message = service.getMessage(id);
+        message.addLink(getUriForSelf(uriInfo, message),"self");
+        message.addLink(getUriForProfile(uriInfo,message),"profile");
+        message.addLink(getUriForComments(uriInfo,message),"comments");
+        return message;
+    }
+
+    private String getUriForComments(UriInfo uriInfo, Message message) {
+
+        String uri = uriInfo
+                .getBaseUriBuilder()
+                .path(MessageResource.class)
+                .path(MessageResource.class, "getCommentResource")
+                .path(CommentResource.class)
+                .resolveTemplate("messageId",message.getId())
+                .build().toString();
+
+        System.out.println(uri);
+        return uri;
+    }
+
+    private String getUriForSelf(UriInfo uriInfo, Message message) {
+        return uriInfo.getBaseUriBuilder().path(MessageResource.class).path(Long.toString(message.getId()))
+                .build().toString();
+    }
+
+    private String getUriForProfile(UriInfo uriInfo, Message message){
+       return uriInfo.getBaseUriBuilder().path(ProfileResource.class).path(message.getAuthor()).build().toString();
     }
 
     @POST
@@ -45,7 +74,7 @@ public class MessageResource {
         URI uri = uriInfo.getAbsolutePathBuilder().path(newId).build();
        return Response
                .created(uri)
-               .entity(service.addMessage(message))
+               .entity(addedMessage)
                .build();
     }
 
