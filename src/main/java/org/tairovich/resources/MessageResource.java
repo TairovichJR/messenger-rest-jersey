@@ -1,14 +1,15 @@
 package org.tairovich.resources;
 
-import jdk.nashorn.internal.objects.annotations.Getter;
 import org.tairovich.model.Message;
 import org.tairovich.resources.beans.MessageFilterBean;
 import org.tairovich.service.MessageService;
-
-import javax.print.attribute.standard.Media;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.xml.ws.RequestWrapper;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 @Path("/messages")
@@ -31,17 +32,22 @@ public class MessageResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     @Path("/{messageId}")
     public Message getMessage( @PathParam("messageId") long id){
         return service.getMessage(id);
     }
 
     @POST
-    public Message addMessage(Message message){
-        return service.addMessage(message);
-    }
+    public Response addMessage(Message message, @Context UriInfo uriInfo) {
 
+        Message addedMessage = service.addMessage(message);
+        String newId = String.valueOf(addedMessage.getId());
+        URI uri = uriInfo.getAbsolutePathBuilder().path(newId).build();
+       return Response
+               .created(uri)
+               .entity(service.addMessage(message))
+               .build();
+    }
 
     @PUT
     @Path("/{messageId}")
@@ -56,10 +62,8 @@ public class MessageResource {
         service.removeMessage(id);
     }
 
-
     @Path("/{messageId}/comments")
     public CommentResource getCommentResource(){
         return new CommentResource();
     }
-
 }

@@ -1,6 +1,7 @@
 package org.tairovich.service;
 
 import org.tairovich.database.DatabaseClass;
+import org.tairovich.exception.DataNotFoundException;
 import org.tairovich.model.Message;
 import org.tairovich.model.Profile;
 
@@ -21,7 +22,11 @@ public class MessageService {
     }
 
     public Message getMessage(long id){
-        return messages.get(id);
+        Message message = messages.get(id);
+        if (message == null){
+            throw  new DataNotFoundException("Message with id " + id + " not found");
+        }
+        return message;
     }
 
     public List<Message> getMessagesForYear(int year){

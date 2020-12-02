@@ -2,7 +2,13 @@ package org.tairovich.service;
 
 import org.tairovich.database.DatabaseClass;
 import org.tairovich.model.Comment;
+import org.tairovich.model.ErrorMessage;
 import org.tairovich.model.Message;
+
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,8 +24,19 @@ public class CommentService {
     }
 
     public Comment getComment(long messageId, long commentId){
-        Map<Long,Comment> comments = messages.get(messageId).getComments();
+        ErrorMessage errorMessage = new ErrorMessage("Not Found", 404,"http://api.tairovich.com/docs/errorhandling");
+        Response response = Response.status(Response.Status.NOT_FOUND).entity(errorMessage).type(MediaType.APPLICATION_JSON).build();
+
+        Message message = messages.get(messageId);
+
+        if (message == null){
+            throw new WebApplicationException(response);
+        }
+        Map<Long,Comment> comments = message.getComments();
         Comment comment = comments.get(commentId);
+        if (comment == null){
+            throw new NotFoundException(response); //alternative option
+        }
         return  comment;
     }
 
