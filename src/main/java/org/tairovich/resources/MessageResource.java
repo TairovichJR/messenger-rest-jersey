@@ -21,7 +21,21 @@ public class MessageResource {
     private MessageService service = new MessageService();
 
     @GET
-    public List<Message> getMessages(@BeanParam MessageFilterBean filterBean) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Message> getJsonMessages(@BeanParam MessageFilterBean filterBean) {
+
+        if(filterBean.getYear() > 0){
+            return  service.getMessagesForYear(filterBean.getYear());
+        }
+        if (filterBean.getStart() > 0 && filterBean.getSize() > 0){
+            return service.getMessagesPaginated(filterBean.getStart(), filterBean.getSize());
+        }
+        return service.getMessages();
+    }
+
+    @GET
+    @Produces(MediaType.TEXT_XML)
+    public List<Message> getXmlMessages(@BeanParam MessageFilterBean filterBean) {
 
         if(filterBean.getYear() > 0){
             return  service.getMessagesForYear(filterBean.getYear());
